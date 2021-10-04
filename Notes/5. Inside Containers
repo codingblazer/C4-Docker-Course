@@ -1,0 +1,48 @@
+5. Inside Containers
+
+docker container top id => process list inside particular container
+
+docker container inspect id => details of container config, how it started, metadata, etc => nothing about what active container is doing
+
+docker container stats <id optional> => performance stats for all containers => Live performance data for all containers => CPU usage + Memory usage and available memory + Networking IO + Block IO accessing IO operations 
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+EXECUTING COMMANDS INSIDE THE CONTAINER => You don't need SSH, Docker CLI provide bunch of options to do things inside the container. 
+
+-t => pseudo tty => simulates a real terminal like ssh 
+
+-i => interactive => keep the session open for us 
+
+bash => after the run command, we can give some startup options like bash and many others space separated at end => tells to use bash for interactive tty for startup => If you exit out of container interactive mode, the container which you started using the bash command, since command that started it will exit using exit, the container will also stop.
+
+docker container run -it --name proxy nginx bash
+=> This will open a root pwd inside the container. You can do admin stuff like download things from internet, make changes to the config files etc
+=> Anything you install in container, after stopping the container and restarting it again, those installed things will be present in that particular container.
+
+
+exit => to exit out of interactive mode.
+
+docker container start -ai ubuntu => To start a stopped container. Notice that, for interactive shell we use -ai with start command.
+
+
+
+EXEC COMMAND => If you want to run a actual terminal inside the EXISTING container. 
+
+Earlier we were running the bash process as startup command which when you exit, the connection to container also finish since that command you wanted to run, as long as that command was running, container was running since work not done and the container stops because its startup command has now exited with some exit code i.e. work of container is done since command is done. Note that this was used with start a new container.  
+
+But in exec command, the bash is opened as a process INSIDE the EXISTING container => Actually, the container started with its original startup command and then we are directly inside the container having container's bash process which is additional process and not startup command and thus no connection type thing is there. Even if you exit, only bash process of container exits but the main sql process for mysql image is still running inside the container thought its bash process has exited. Thus, container wont stop on exiting in this case.
+
+docker container exec -it mysql bash
+
+Note that if bash is not present inside the container like in alpine image, it will show error. The startup command should be available inside the container.
+---------------------------------------------------------------------------------------------------------------------------------------------
+UBUNTU IMAGE
+
+=> Unlike ubutu ISO, the ubuntu image container is very light weight i.e. ubuntu ISO that we use in virtual machines etc has lot of 
+other software but not on container. We can install what we want inside the container using apt get install.
+
+ALPINE IMAGE 
+
+=> very very small linux image like 5mb => doesnt even have a bash in it => It has sh => docker container run -it sh 
+-------------------------------------------------------------------------------------------------------------------------------------------------
+

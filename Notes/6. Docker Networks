@@ -1,0 +1,86 @@
+6. Docker Networks
+
+docker container port containerName => tells the port of host to container in clean format
+docker container inspect --format '{{ .NetworksSettings.IPAddress }}' containerName => gives the IP address inside the container
+ifconfig en0 => IP address of host is different from the container IP address => WHY ??
+																						bridge Network/ docker 0
+                                                                                          -------------
+Host Network | Ethernet (contains NAT Firewall)                                           |            | => Container 1 attached to network -p 80:80
+			 |   layer                                                                    |            | => Container2 attached to same network, no -p 
+			 |   
+			 |   
+             |
+             |
+port 80, 8080
+opened 																						network myapp/ docker 1
+                                                                   -------------
+						                                           |            | => Container3: msql attached to network, no -p 
+                                                                   |            | => Container4: httpd attached to same network, -p 8080:80
+Explanation:
+
+1. Each container is connected to private virtual network called "bridge" or docker0 by default. When you bring second container, that also connects to the same VPN bridge. Thus, the containers can talk to each other without opening any ports or specifying -p of host. Like in above diagram, the container 3 and 4 are part of same network and container 3 don't have any port opened. Container 4 has 80 opened for 8080 of the host. When traffic comes at 8080, the container 4 gets the traffic and can talk to container 3.
+
+We can create additional VPN networks. The best practice is to create a new network for each application i.e. Nebula app having sql,rocket etc containers on network1 which can talk to each other and Carol app having sql, etc on new network which can talk to each other. Remember that on host side, the ports can be used only once. Multiple containers can't be listening to same port of host.
+
+These VPN are connected to the host network via Ethernet interface. So, "-p 8080:80" means that we asked any incoming traffic on port 8080 of host's ethernet interfact to be passed on to the docker container VIA BRIDGE PRIVATE NETWORK.  
+
+The container may be connected to multiple VPN also or to none of the networks.
+
+2. The host network is physical network. Any traffic coming to host network has to pass through NAT firewall inside the ethernet interface of machine.
+
+3. You might want to skip the VPN configuration which is already there and use --net=host => Host IP will be used inside the container. 
+
+4. We can use network drivers also which can extend the docker's network capabilities.
+ 
+ ----------------------------------------------------------------------------------------------------------------------------------------------------
+ COMMANDS 
+
+ docker network ls => show networks on the docker server => The below 3 are there by default.
+ 
+Different already present networks when you do ls =>
+
+ docker0/bridge is default for any container.
+ 
+ host: special network which skips the virtual network of docker and sacrifices the security of container model. => Container attached directly to host network interfac. Advantage of high network performance comes at cost of comprising the security of container.
+ 
+ none: network not attached to anything
+-------------------------------------------
+ docker network inspect <network name like: bridge> => will show containers attached to network, the IP of the network i.e. subnet = 172.17.0.0/16 which is default for docker bridge usually which can be changed and gateway for this network which will route out ot physical network. 
+--------------------------------------------
+docker network create my_app_net => create a new network => uses the default driver for it i.e. bridge driver => A simple driver is 3rd party extension that gives virtual network features with subnet around 172.17 and above. Many more advanced options are available for this command.
+--------------------------------------------
+docker container run -d --name xyz --network my_app_net nginx => creates a docker container and attach to given network
+--------------------------------------------
+docker network connect <network id> <container id> => we will connect the existing container to new network we created => this command dynamically creates a connection of existing container with exisiting virtual network. Thus if you do container inspect on this container after this, it will show 2 networks: the previous one and the new one that you connected to. The container might be running while you do this.
+------------------------------------------------------------------
+docker network disconnect <network id> <container id> => opposite of connect
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+DNS IN DOCKER NETWORKS
+
+Container is like a machine which will have its own IP address and hence these containers/IPs are part of bridge or some other network together.
+
+We need good DNS bcoz we cant rely on IP adress inside container. In worlds of containers. talking to each other, launching, disappearing, moving, expanding, shrinking and all the features of these microservices as containers => it is very dynamic and we can't assume that IP address will remain even => Container might go away or container might be rebrought after failure.
+
+Solution: DNS Naming => Docker daemon has a built in DNS server that containers can use. If there are 2 containers on same network, they can find each other regardless of their IP by their container names. So host is resolved as container name by DNS or we can give aliases.
+
+Example: If you have 2 containers on the same network named my_nginx and new_nginx => If you do: 
+docker container exec -it my_nginx ping new_nginx => You are pinging the name of container instead of some IP address => and this works 
+
+NOTE: The default bridge network does not have the DNS server built in. So, you should ideally make your own network to have DNS built in. Or you can also link containers in case of containers inside bridge network. i.e. 
+docker run has option => --link containerName to create a link 
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,25 @@
+2. Docker Concepts 
+
+Commands:
+
+1.docker version => lists version of the client and server => The client is CLI and server is the engine which is called service on the Windows and daemon on Mac and Linux.
+When you send command => client is talking to the server to get these values for me. The server is "Docker is running" which is running in bg. 
+
+2. docker info => A lot more information about docker server config => number of containers running inside docker, number of images you have stored on docker server, etc.
+
+3. Docker Command Line Structure => Since number of commands were getting many => created organisation => docker <command> changed to <docker> <orgniser> <command>
+Example => "docker run" and new command is "docker container run" => Note that old commands will still work forever.
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+Image and Container:
+
+Image => Libraries, source code, binaries that all makes up your application and how to run this => Image is the application we want to run
+Container => Running instance of the image. You can have many containers running of the same image.
+
+Nginx Web server => Simple Http server you can use as your application for image which we will use to practice with docker
+
+DockerHub => hub.docker.com => Default image registry for Docker => Like codes are stored on github, images are stored on Dockerhub
+How to find good public images, let say we are searching for ngix image on dockerhub => 
+1. "Official is written" below nginx for example. If something like sachinagg/nginx => means by someone else repo. Choose official. Official ones are put together by docker team after testing them out and checking if they follow best practices and must have documentations. Versioning is also done here. Version of image can have more than one tag. We can use any of those tags to refer to this version of image while downloading. Image id is same if looking different tags of same version.
+
+2. See the stars and pulls number.

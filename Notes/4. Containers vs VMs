@@ -1,0 +1,14 @@
+4. Containers vs VMs
+
+Container is a kinda restricted process running on your host operating system like Linux and not some VM kind of thing. If you run a mongo image:
+
+docker run --name mongo -d mongo and do "docker top mongo" to see processes running under container => You will see mongo process. On your host OS, if you list its own processes using "ps aux"=> This mongo process will show up there also maybe with different PID though.  
+
+Had container be a VM, the process would be hidden by the VM and not show up on your host OS. 
+
+Read more about this on: Resources of 21 Video 
+Also read about 22 => Windows containers 
+Also some more resources in previous sections on container commands etc are there.
+
+
+Also, container does not have an OS or kernel or drivers and that's how it is different from the Virtual machine which has its own kernel and operating system.

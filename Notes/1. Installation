@@ -1,0 +1,23 @@
+1. Installation
+
+1. Direct => Docker uses the kernel and the OS i.e. Docker supports that OS. Linux, Windows Server 16 etc supports docker natively.
+2. Not Direct => Mac and Windows 10 => Suite of tools including GUI and settings available to use docker but not supported natively on these. Uses one virtual machine to run containers on it.
+3. Clouds => Docker for AWS is example => Docker for this offers other features like using it with AWS volume etc => specific to vendor like AWS 
+
+
+MAC INSTALLATION: https://www.docker.com/products/docker-desktop
+
+1. Dont use brew as it install CLI which is used to talk to remote server which we wont do much in this course.
+2. Docker Toolbox => for old MAC OS => 10.6-10.8
+3. You can download virtual box to bring up linux VM and run your docker on that.
+4. Might throw error on installation => Open docker from Applications folder and it should work.
+
+On top icon, click and open Prefrences => 
+
+File sharing => Make sure that your code which you are using should be in one of these volumes 
+
+Advanced => Mac is actually running a tiny Linux VM because docker doesn't run natively on Mac kernel. Apple hasn't added support for it. Like any VM, you can give RAM and CPU => whatever resources you are giving, docker only use to full capacity if needed. Otherwise, other apps on Mac can share those resources.
+
+Iterm2 for terminal is good to install
+Download Microsoft Visual Studio and Docker extension in it
+brew install bash-completion => this helps in completing docker commands using TAB => Follow this afterwards => https://docs.docker.com/compose/completion/ => See for zsh

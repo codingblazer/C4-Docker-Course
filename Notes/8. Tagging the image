@@ -1,0 +1,16 @@
+Tagging the image 
+
+The image can be referred using 3 things => the id, the name or the tagsß
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+docker image tag <source image with or without tag> <target image tag>
+
+The target image tag has to be in specified format so that it can be interpreted by dockerhub. Example:
+
+1) Giving name, version to your image as tag. Works fine. Latest is the default tag in case you don't give any. 
+2) If some other image i.e. image is already in someone's official account, like nginx, you must tag it like <your account username>/<repo you want this image in your account> Example: sachin/nginx being tag. Thus if created in this format and you push this tag for nginx, that tag wont be added to official nginx but it will be interpreted by dockerhub by creating an image inside your account in nginx repo.
+If case, you want this image under private repo, create an empty repo already as private inside dockerhub and then do the above.
+Also, since you are pushing to your account you would be asked to login by the CLI. => .docker/config.json contains the authentication key required to login to dockerhub. Make sure to logout from dockerhub if its server or any non-trusted machine.   
+3) Whatever tags you create in above 2 steps, in both cases, all these will have same image id.
+

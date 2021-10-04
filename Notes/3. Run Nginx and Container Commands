@@ -1,0 +1,45 @@
+3. Run Nginx and Container Commands
+
+Run a container of Nginx http server application as image:
+
+docker container run --publish 80:80 nginx
+docker container run --publish 8080:80 --name sachinContainer -d nginx:1.11 nginx -T
+docker container run --publish 80:80 --detach --name sachin nginx
+
+1) Docker actually looks for the image locally in image cache. If doesnt find anything, download it from docker hub. If the version is not specified, it picks the latest version and creates a new container based on the image. It gives the virtual private network inside docker server and opens port there.
+2) --publish 80:80 tells to publish the ports => left part is host IP port to be opened => port 80 on host machine is opened => Any traffic coming to this port is routed to container's  (right side) port 80 
+3) If the host port 80 is already in use => it shows bind error => change left port to any unused port (right should be 80 only which is default opened by nginx on container where nginx is running)
+4) This will run in forefround. If you close using Ctrl + C , the container is stopped.
+5) The containers are given any random names by docker. But you can specify the name yourself like above in 2nd command.
+6) The detach will run the container in background and give the container Id for refrence. Note that run command always creates a new container unlike start command below.
+
+localhost:80
+
+Options
+-p or --publish
+-d or --detach 
+-e or --environment => You can give env variables for inside of container like "-e MYSQL_RANDOM_ROOT_PASSWORD=yes"
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker container ls => lists all the running containers (docker ps is the old way)
+docker container ls -a => lists all the containers i.e. running and stopped 
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker container stop => Stops the container process but doesn't remove the container. 
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker container start => starts an existing stopped container
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker container logs webhost => List the logs of the particular container by id or name
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker container top => process running inside the container 
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker container rm 63f 690 897 => to remove the containers => You cannot remove the container if any of these is running => must stop and then remove or use -f option with rm to force remove container.
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker login => give your dockerhub username and password to login to dockerhub so you can download private images also
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker image ls => Shows all the images. Even if you remove the container, the images are still there unless removed.
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker pull alpine => Pulls the image from dockerhub into local cache.
+
+NOTE : 
+
+1) YOU CAN USE --help TO LIST ALL THE OPTIONS FOR ANY COMMAND. EXAMPLE => docker container logs --help
+2) IF GIVING CONTAINER ID AS PARAM, EVEN IF YOU GIVEN FIRST 2 CHARS, IT WORKS => DOCKER CONTAINER LOGS E45

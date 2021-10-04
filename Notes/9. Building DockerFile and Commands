@@ -1,0 +1,51 @@
+Building the Docker Files 
+
+1) Not a shell script, different language
+2) Default name is Dockerfile => if building from this => docker build is enough in directory. If giving any other name or any other dockerfile in same directory, then do "docker build -f filename".
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+3) Various Commands => Go to dockerfile-sample-1/Dockerfile in this repositry
+
+FROM => any minimal distribution => debian:jessie, alpine etc => has updated security patches and their package distribution system is advantage which makes it easy to install various things easily using apt, yum.
+
+ENV NGINX_VER 1.11 => Setting env variables is very important and it is chosen to inject KV pairs because it works on every OS and config. Any subsequent lines will be able to use this Env variables set here. Note that each stanza or line in dockerfile is a layer and order is like this bottom up. So, where you add these env variables or particular stuff also matters a lot. 
+
+ RUN => there are 2 run commands in the dockerfile => we can eiether run any shell script which we copied in any previous layer or we can run apt etc which is available from debian layer in first step to install things. Note that && is used in run commands intentionally so that everything in this run command comes under single docker layer. && means that run the second command only when the first one succeeds.
+ 2nd RUN command is writing the logs to the log file but there is better way to do logging in docker which will be discussed later.
+
+EXPOSE 80 443 => by default, no TCP or UDP ports are open inside the container =>  Since its a proxy server thats why these ports are opened. Note that exposing ports does not means that these ports are opened on the host and will direct traffic to container. That has to be mentioned during docker run container using -p option which tells the host to direct traffic to these exposed ports.
+
+CMD => final command that will run whenever you start/restart or launch a new container instance from this image. 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+4) Building the image => 
+
+docker image build -t customAnyName .
+
+Builds the image out of the dockerfile => Since creating locally, not giving tag of my repo, . means build from the current directory i.e. whatever Dockerfile is present here. 
+
+As it runs, you will see it executing it line by line which are the layers. If you change one line in Dockerfile, let say adding another port 8080 to expose => Next time you build, it will be really fast => All the layers before expose will say "Using Cache" which saves a lot of time.
+
+1) All the layers, after the expose here, irrespective of whether they are changed or not will be rebuilt because base of these layers have changed leading to possibility of cascading changes.
+2) It is that's why recommended to design your Dockerfile such that: "MOSTLY CHANGED PARTS LIKE COPYING THE SOURCE CODE ARE AT END OF FILE AND MOST OF UNCHANGEABLE THINGS LIKE ENV VARIABLES ARE KEPT AT TOP" to save the build time. 
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+5) Extending official images => Go to dockerfile-sample-2/Dockerfile in this repositry
+
+FROM nginx:latest => discussed FROM
+
+WORKDIR /usr/share/nginx/html => it operates in the container => in this case, inside nginx does the cd to this path. We could have also used RUN with cd but this is preferred. 
+
+COPY index.html index.html =>  from your host machine current directory to container WORKDIR as target 
+
+Why is there no CMD default command ? Because when we do FROM, we are actually extending every command/everything from nginx and nginx, as we can check on documentation on dockerhub already has a CMD command. Note that nginx server by default serves anything inside /usr/share/nginx/html. So we are completely done with above code.
+
+Just do docker image build -t xyz . and then run this image container using docker container run -p 80:80 --rm xyz
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+6) Assignment => Go to dockerfile-assignment-1
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+7) Docker PRUNE 
+
+docker system df => tells how much space images, containers and volumes are taking up. 
+
+docker system prune => deletes all stopped containers, volumes not used by any container, networks not used by any container, all dangling images	

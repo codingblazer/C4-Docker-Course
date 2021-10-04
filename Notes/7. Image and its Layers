@@ -1,0 +1,32 @@
+Image and its Layers -=> Images are constructed as changes and this gives sense that it is something like layers made using unified file system.
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+docker history nginx:latest => This will show how history of changes like adding layers, files, or changing some run commands which made this image.
+
+Note: Missing in output just means that these are layers and not have image id => the top layer points to the image id.
+
+Every image starts with a blank layer called scratch. The changes like modifying commands might not bring change in size of image but others like adding layer do. 
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Docker Optimisation on storing layers 
+So, docker does not store the same layer again. If there are 2 images are both are using say layer x = ubuntu base or nginx => only one layer is actually stored in docker. Containers from both images will be using the same ubuntu layer i.e. layers are cached for reuse rather than downloading them again. Each layer has a unique sha given and this is used to identify if docker already has that layer cached and only new layers are downloaded.
+
+
+
+               layer 5 => Image1 is abc.com whose source code copy |  Image 2 is bcd.com whose source code copy => layer 6
+								PORT OPEN 80 change => layer 4 with diff sha
+								ENV SET change => layer3 with sha
+								Debian layer ubuntu => layer 2
+								Scratch layer => layer 1
+
+So, above only layer 1,2,3,4,5,6 are stored once and downloaded once even if 2 images are using them for construction.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+How docker layers work when containers run these images ?
+
+So, all the layers are read only layers. When the container is started, it is just a process and a container layer is assigned to this container which is both read or write layer. Let say this container modifies a file of the base layer of its image => At this time, COW (copy on write) happens => Since layers are read only, base layer in this case, wont be modified => for this file change, the read only file is copied from base layer and file changes are written to this copy and then written to container layer. 
+In terms of space, the size of container layer would be effectively the size of change, very similar to git commits. 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+docker image inspect nginx => tells all the information about image like metadata, how it is expected to be runned i.e. default starting command, the author, the ports opened etc. 

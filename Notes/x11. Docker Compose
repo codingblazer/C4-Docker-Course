@@ -1,0 +1,79 @@
+11. Docker Compose 
+
+Usually we wont have a standalone container running but there will be a lot of them like sql, service etc working together for application and requiring relation between each other => docker compose allows this relationship, to bring all these containers with one command and bring down them with one command, and maintain them in files.
+
+2 parts:
+
+1)YAML file to specify containers, volumes and networks.
+2)CLI docker compose command to run and test these YAML files locally. Not for production but now there is a support for docker compose in production with swarm.
+
+Docker yaml has versions. docker-compose.yaml is the default name but you can specify any other name with docker-compose -f filename option of docker cli.
+
+1) DOCKER YAML FILE 
+
+1) If you dont mention the version in first line, it is assumed to be the version 1.0 and you lost many features, so do add a version.
+2) services:, volumes:, networks: => hierarchical fashion =>
+
+Services => servicename: => can be anything you want => If you want to bring 2 containers of same image, you can do by naming servicename different. This is essentially equivalent to docker run command. Any option you can give in docker run can be given as option inside this section of any particular service inside sevices. i.e. 
+services:
+	serviceName:	 
+		image: 
+		command: optional => replace any default CMD inside the image dockerfile you are building
+		environment: optional and same as -e in docker run 
+		volumes:  optional and same as -v in docker run 
+volumes: optional and same as docker volume create 
+networks: optional and same as docker network create 
+
+-----------------------------------------
+
+See the examples inside compose-sample-1 
+
+Notice the YAML format => 
+Whenever key can have only one value => its KV pair like image: value
+Whenever key can have multiple values => its list values specified like => 
+volumes:
+ - value1
+ - value2
+
+-------------------------------------------
+
+2) DOCKER COMPOSE CLI
+
+It is a separate binary than docker cli but comes along in Mac and Windows and have to downloaded separately on linux. For local development and testing to make them fast => not designed as production level tool.
+
+docker-compose up => setup volumes, networks and start the containers 
+-d => optional => detach => to run it in background like we have in docker run command 
+
+
+docker-compose down => stop all the containers and remove container, volume, networks
+
+Option -rmi local => to remove the any images built during this docker compose up command (we will see how images can be build from the docker compose itself in next section).
+
+SEE DOCKER COMPOSE ASSIGNMENT VIDEO => the volumes path need to be mentioned inside the service and their bind mapping and these volumes should be brough up using the volumes section => just mentioning their mapping inside service setup wont bring them up 
+
+-----------------------------------------------------
+USING DOCKER COMPOSE FOR BUILDING IMAGE ALSO 
+
+docker-compose up
+
+You can specify the image as well as build option => It will first look in cache to find the image you specified => if found, will use that => if not found, will build the image from the dockerfile specified inside build =>
+
+services:
+	proxy-service:
+		build:
+			context: .
+			dockerfile: nginx.Dockerfile
+		image: nginx-custom //will first look for this in cache
+
+
+docker-compose build => As against docker-compose up command, it wont look for the image in cache but will always build the image from dockerfile mentioned and use that. 
+
+Look at compose-assigment-2 for example.
+
+Some Notes: apt-get update && apt-get install -y git \
+&& rm -rf /var/lib....
+
+=> -y option means that for displayed yes or no, choose yes
+=> \ at the end means to include the next line in this command itself 
+=> Everything inside docker has owner as root, you might not to change the owner in some cases using chown 
+=> DNS names (set as aliases) for containers in a compose file come from the service name declared in the .yml

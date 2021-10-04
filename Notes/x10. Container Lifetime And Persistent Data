@@ -1,0 +1,50 @@
+Container Lifetime And Persistent Data
+
+Containers are usually immutable (not changing or no state) and ephimeral (temporary) =>  You don't change configs like env variables on running container also, you throw away container and create a new one with new config => immutable AND they are not meant to be running permanently like servers where you go inside and make changes on running instance but server keeps running almost infintely unless something fails => These are from design point and not limitations of the docker container => This design helps in having reliability, consistency. 
+
+This however brings another point to talk about => what about the data that apps will generate ? Ideally, docker should not keep this data with itself mixed with binaries of code => Reason being separation of concern. => Docker allows this => As we know that we can separately stop container and restart with new code => only code part is getting updated and sepration is there. 
+
+What about data from old container ? So, no worries, docker has made data also persistent. Whatever data was generated on old container, that will still be there on old container through following 2 options:
+
+1) Volumes => Special location outside of UFS (Union file system) of container which is accessible across containers. The new container can still access this volume which was used by previous container. This location will seem like a local path to container. 
+
+2) Bind Mounts => We mount/share our host machine's (in build machine or local machine, anywhere you deploy) with the container. It will again look like a local path to the container. 
+
+You can go to any official image like mysql and see its dockerfile to see complex and best practices used in them. So, we have a volume command which tells where the data should go => This volume outlives the container => even if container is deleted, volume won't until you delete manually. 
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+Volumes 
+
+On the downloading the official mysql image => docker pull mysql and doing docker image inspect mysql => you can see the volumes attached to it 
+
+docker container run -d --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=True mysql => again, if you run the container and then do docker container inspect mysql => it will show that volumes + it will also have a section called Mounts which will show source and destination => source is the location of volume on your host  => the data on linux is readable but on Mac/Windows, since they are using the virtual machines, host is virtual machines and data is there which is not so direct to read. 
+
+docker volume ls => list all the volumes 
+
+docker volume inspect id => shows basic volume details => You can see that, though from container inspect we can know which volumes container is connected to, but from volume we cant know which containers it is being used for =>  Also if there are more than one volumes => You don't really know what that volume is for because just volume id is present => No distinction between these volumes are present 
+The solution is Named volumes => When creating a new volume, give the name to that volume using - => 
+docker container run -d --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=True -v <option> mysql
+
+<option1> => specify new volume for the container that we are about to create => /var/lib/msql => but we wont do it because its already there in mysql dockerfile
+<option2> => mysql-db:/var/lib/msql => mysql-db will be the name of volume => In this case, we override what is there in dockerfile of mysql by saying, create new volume like dockerfile was doing but also give it this name. Also, in volume inspect, you will see the name which will solve earlier discussed issues and in container inspect you will see it having host path changed, new one containing volume name in its path. 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+Bind Mounts 
+
+Mapping of host file or directory to container file or directory => it is 2 locations pointing to the same physical location on disk => 
+
+They are host specific and needs the data to be on host machine => Thus it can't be specified in Dockerfile => needs to be given at runtime i.e. in docker run command => docker container run -v /Users/sachin/stuff:/path/container => left side of colon is like -v name but here we give the host path and right side is path in container that it is mapped to.
+ 
+So if you do any changes on host machine in this mapped directory => And open another terminal tab doing exec to see inside container mapped location => changes on host machine will come automatically in docker location because both are mapped. 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+Differences between Volumes and Bind Mounts 
+
+Volumes created using dockerfile and managed by docker, new directory is created => no permission handling and all from your side. Bind mounts are mapping and created at runtime, not managed by docker, uses existing directory => permission handling might be needed for host files
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
